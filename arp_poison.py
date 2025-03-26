@@ -62,6 +62,9 @@ def main():
     user_target_ip = user_ips.target_ip
     user_gateway_ip = user_ips.gateway_ip
 
+    if not user_ips.gateway_ip or not user_ips.target_ip:
+        exit(1)
+
     try:
         while True:
             arp_poisoning(user_target_ip,user_gateway_ip)
